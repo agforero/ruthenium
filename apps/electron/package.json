@@ -1,0 +1,12 @@
+{
+  "name": "@ruthenium/electron",
+  "version": "0.0.1",
+  "private": true,
+  "main": "main.cjs",
+  "scripts": {
+    "dev": "electron ."
+  },
+  "devDependencies": {
+    "electron": "^34.2.0"
+  }
+}
