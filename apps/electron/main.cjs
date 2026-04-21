@@ -1,5 +1,19 @@
-const { app, BrowserWindow } = require("electron");
+const { app, BrowserWindow, ipcMain, dialog } = require("electron");
 const path = require("path");
+
+function registerIpc() {
+  ipcMain.handle("dialog:openDirectory", async () => {
+    const win =
+      BrowserWindow.getFocusedWindow() ?? BrowserWindow.getAllWindows()[0];
+    const result = await dialog.showOpenDialog(win ?? undefined, {
+      properties: ["openDirectory"],
+    });
+    if (result.canceled || result.filePaths.length === 0) {
+      return null;
+    }
+    return result.filePaths[0];
+  });
+}
 
 function createWindow() {
   const win = new BrowserWindow({
@@ -17,6 +31,8 @@ function createWindow() {
     win.loadURL("http://localhost:5173");
   }
 }
+
+registerIpc();
 
 app.whenReady().then(() => {
   createWindow();

@@ -5,20 +5,20 @@ export function HealthStatus() {
   const [label, setLabel] = useState("Loading…");
 
   useEffect(() => {
-    let cancelled = false;
+    const state = { cancelled: false };
     getHealth()
       .then((h) => {
-        if (!cancelled) {
+        if (!state.cancelled) {
           setLabel(`${h.service} @ ${h.time}`);
         }
       })
       .catch((err: unknown) => {
-        if (!cancelled) {
+        if (!state.cancelled) {
           setLabel(err instanceof Error ? err.message : "Request failed");
         }
       });
     return () => {
-      cancelled = true;
+      state.cancelled = true;
     };
   }, []);
 
