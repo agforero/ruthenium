@@ -29,3 +29,15 @@ await esbuild.build({
   sourcemap: true,
   external: ["electron"],
 });
+
+const iconSrc = path.join(
+  dir,
+  "..",
+  "..",
+  "packages",
+  "brand-assets",
+  "logo-square.png",
+);
+const iconDest = path.join(dist, "assets", "app-icon.png");
+fs.mkdirSync(path.dirname(iconDest), { recursive: true });
+fs.copyFileSync(iconSrc, iconDest);

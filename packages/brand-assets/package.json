@@ -1,0 +1,16 @@
+{
+  "name": "@ruthenium/brand-assets",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Shared brand images for the web renderer and Electron shell",
+  "exports": {
+    "./logo-black-web.gif": "./logo-black-web.gif",
+    "./logo-black.png": "./logo-black.png",
+    "./logo-square-black-web.gif": "./logo-square-black-web.gif",
+    "./logo-square-black.png": "./logo-square-black.png",
+    "./logo-square-web.gif": "./logo-square-web.gif",
+    "./logo-square.png": "./logo-square.png",
+    "./logo-web.gif": "./logo-web.gif",
+    "./logo.png": "./logo.png"
+  }
+}

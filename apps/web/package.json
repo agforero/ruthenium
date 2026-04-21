@@ -10,9 +10,11 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@tanstack/react-query": "^5.80.6",
-    "@ruthenium/shared": "*",
     "@radix-ui/react-separator": "^1.1.7",
+    "@ruthenium/brand-assets": "*",
+    "@ruthenium/shared": "*",
+    "@tanstack/react-query": "^5.80.6",
+    "@xyflow/react": "^12.10.2",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "lucide-react": "^0.518.0",

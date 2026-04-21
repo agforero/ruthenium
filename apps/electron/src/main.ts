@@ -1,15 +1,18 @@
-import path from "node:path";
-import { fileURLToPath } from "node:url";
-import { app, BrowserWindow, dialog, ipcMain } from "electron";
 import { buildProjectGraph } from "@ruthenium/project-graph";
 import {
   healthResponseSchema,
   projectGraphRequestSchema,
   projectGraphSchema,
 } from "@ruthenium/shared";
+import { app, BrowserWindow, dialog, ipcMain } from "electron";
+import fs from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 
 const rootDir = path.dirname(fileURLToPath(import.meta.url));
 const preloadPath = path.join(rootDir, "preload.cjs");
+const windowIconPath = path.join(rootDir, "assets", "app-icon.png");
+const windowIcon = fs.existsSync(windowIconPath) ? windowIconPath : undefined;
 
 function registerIpc(): void {
   ipcMain.handle("ruthenium:ping", () => {
@@ -68,6 +71,7 @@ function createWindow(): void {
   const win = new BrowserWindow({
     width: 960,
     height: 640,
+    ...(windowIcon !== undefined ? { icon: windowIcon } : {}),
     webPreferences: {
       preload: preloadPath,
       contextIsolation: true,
