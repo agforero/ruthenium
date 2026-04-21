@@ -45,7 +45,8 @@ export function ProjectScanPanel() {
   }, [runScan]);
 
   const electronUa =
-    typeof navigator !== "undefined" && navigator.userAgent.includes("Electron");
+    typeof navigator !== "undefined" &&
+    navigator.userAgent.includes("Electron");
 
   if (!isElectronShell()) {
     return (
@@ -61,25 +62,38 @@ export function ProjectScanPanel() {
               fontSize: "0.9rem",
             }}
           >
-            This window is Electron, but the <strong>preload bridge</strong> did not attach (
-            <code>window.ruthenium</code> is missing). Check the devtools console; the app expects{" "}
-            <code>dist/preload.cjs</code> to load from the main process.
+            This window is Electron, but the <strong>preload bridge</strong> did
+            not attach (<code>window.ruthenium</code> is missing). Check the
+            devtools console; the app expects <code>dist/preload.cjs</code> to
+            load from the main process.
           </p>
         ) : null}
         <p style={{ color: "#475569" }}>
-          Ruthenium runs inside <strong>Electron</strong>: privileged work (folder picker, project
-          graph) goes over a small <strong>IPC allowlist</strong> to the main process—there is no
-          local HTTP API. From the repo root, run{" "}
-          <code style={{ background: "#e2e8f0", padding: "0.1rem 0.35rem", borderRadius: 4 }}>
+          Ruthenium runs inside <strong>Electron</strong>: privileged work
+          (folder picker, project graph) goes over a small{" "}
+          <strong>IPC allowlist</strong> to the main process—there is no local
+          HTTP API. From the repo root, run{" "}
+          <code
+            style={{
+              background: "#e2e8f0",
+              padding: "0.1rem 0.35rem",
+              borderRadius: 4,
+            }}
+          >
             npm run dev
           </code>{" "}
           (or{" "}
-          <code style={{ background: "#e2e8f0", padding: "0.1rem 0.35rem", borderRadius: 4 }}>
+          <code
+            style={{
+              background: "#e2e8f0",
+              padding: "0.1rem 0.35rem",
+              borderRadius: 4,
+            }}
+          >
             npm run dev:stack
           </code>{" "}
           for Vite only in a browser).
         </p>
-
       </section>
     );
   }
@@ -88,9 +102,9 @@ export function ProjectScanPanel() {
     <section style={{ marginTop: "2rem" }}>
       <h2 style={{ marginTop: 0 }}>Project graph</h2>
       <p style={{ color: "#475569", fontSize: "0.95rem" }}>
-        Uses TypeScript&apos;s program and module resolution for the folder you pick (same family of
-        rules as <code>tsc</code>). The graph is built in the <strong>main process</strong> over IPC;
-        nothing is uploaded.
+        Uses TypeScript&apos;s program and module resolution for the folder you
+        pick (same family of rules as <code>tsc</code>). The graph is built in
+        the <strong>main process</strong> over IPC; nothing is uploaded.
       </p>
       <div
         style={{
@@ -100,16 +114,30 @@ export function ProjectScanPanel() {
           alignItems: "center",
         }}
       >
-        <button type="button" disabled={loading} onClick={() => void chooseAndScan()}>
+        <button
+          type="button"
+          disabled={loading}
+          onClick={() => void chooseAndScan()}
+        >
           {loading ? "Scanning…" : "Choose project folder…"}
         </button>
         {rootPath ? (
-          <span style={{ fontSize: "0.9rem", color: "#334155", wordBreak: "break-all" }}>
+          <span
+            style={{
+              fontSize: "0.9rem",
+              color: "#334155",
+              wordBreak: "break-all",
+            }}
+          >
             {rootPath}
           </span>
         ) : null}
         {rootPath ? (
-          <button type="button" disabled={loading} onClick={() => void runScan(rootPath)}>
+          <button
+            type="button"
+            disabled={loading}
+            onClick={() => void runScan(rootPath)}
+          >
             Rescan
           </button>
         ) : null}
@@ -120,8 +148,8 @@ export function ProjectScanPanel() {
       {graph ? (
         <div style={{ marginTop: "1rem" }}>
           <p>
-            <strong>{graph.nodes.length}</strong> files · <strong>{graph.edges.length}</strong>{" "}
-            internal edges
+            <strong>{graph.nodes.length}</strong> files ·{" "}
+            <strong>{graph.edges.length}</strong> internal edges
             {graph.tsconfigPath ? (
               <>
                 {" "}

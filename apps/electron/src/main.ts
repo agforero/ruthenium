@@ -42,7 +42,9 @@ function registerIpc(): void {
         errors: [
           {
             message:
-              err instanceof Error ? err.message : "Failed to build project graph",
+              err instanceof Error
+                ? err.message
+                : "Failed to build project graph",
           },
         ],
       });

@@ -66,7 +66,10 @@ function visitForImports(
       cb(arg.text, "dynamic", false);
     }
   } else if (ts.isCallExpression(node)) {
-    if (ts.isIdentifier(node.expression) && node.expression.text === "require") {
+    if (
+      ts.isIdentifier(node.expression) &&
+      node.expression.text === "require"
+    ) {
       const arg = node.arguments[0];
       if (arg && ts.isStringLiteralLike(arg)) {
         cb(arg.text, "require", false);
@@ -125,7 +128,10 @@ export function buildProjectGraph(rootPathInput: string): ProjectGraph {
 
   const readResult = ts.readConfigFile(configPath, ts.sys.readFile);
   if (readResult.error) {
-    const msg = ts.flattenDiagnosticMessageText(readResult.error.messageText, "\n");
+    const msg = ts.flattenDiagnosticMessageText(
+      readResult.error.messageText,
+      "\n",
+    );
     errors.push({ message: msg, file: readResult.error.file?.fileName });
   }
 
@@ -196,14 +202,18 @@ export function buildProjectGraph(rootPathInput: string): ProjectGraph {
         ts.sys,
       );
       const resolvedFileName = resolved.resolvedModule?.resolvedFileName;
-      const toPath = resolvedFileName ? normalizeFsPath(resolvedFileName) : null;
+      const toPath = resolvedFileName
+        ? normalizeFsPath(resolvedFileName)
+        : null;
 
       const external =
         toPath !== null &&
         (isInsideNodeModules(toPath) || !isUnderRoot(toPath, rootPath));
 
       const internalTarget =
-        toPath !== null && isProjectSourceFile(toPath, rootPath) ? toPath : null;
+        toPath !== null && isProjectSourceFile(toPath, rootPath)
+          ? toPath
+          : null;
 
       if (internalTarget) {
         nodePaths.add(internalTarget);
@@ -228,9 +238,7 @@ export function buildProjectGraph(rootPathInput: string): ProjectGraph {
     });
   }
 
-  const nodes = [...nodePaths]
-    .sort()
-    .map((p) => ({ path: p }));
+  const nodes = [...nodePaths].sort().map((p) => ({ path: p }));
 
   const edges = edgeDrafts
     .sort((a, b) => {
