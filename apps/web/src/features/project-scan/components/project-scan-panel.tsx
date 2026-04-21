@@ -3,7 +3,11 @@ import type { ProjectGraph } from "@ruthenium/shared";
 import { postProjectGraph } from "../api/post-project-graph";
 
 function isElectronShell(): boolean {
-  return typeof window.ruthenium?.selectProjectDirectory === "function";
+  return (
+    typeof window.ruthenium?.ping === "function" &&
+    typeof window.ruthenium?.scanProjectGraph === "function" &&
+    typeof window.ruthenium?.selectProjectDirectory === "function"
+  );
 }
 
 export function ProjectScanPanel() {
@@ -40,13 +44,32 @@ export function ProjectScanPanel() {
     await runScan(picked);
   }, [runScan]);
 
+  const electronUa =
+    typeof navigator !== "undefined" && navigator.userAgent.includes("Electron");
+
   if (!isElectronShell()) {
     return (
       <section style={{ marginTop: "2rem" }}>
         <h2 style={{ marginTop: 0 }}>Project graph</h2>
+        {electronUa ? (
+          <p
+            style={{
+              color: "#9a3412",
+              background: "#ffedd5",
+              padding: "0.75rem 1rem",
+              borderRadius: 6,
+              fontSize: "0.9rem",
+            }}
+          >
+            This window is Electron, but the <strong>preload bridge</strong> did not attach (
+            <code>window.ruthenium</code> is missing). Check the devtools console; the app expects{" "}
+            <code>dist/preload.cjs</code> to load from the main process.
+          </p>
+        ) : null}
         <p style={{ color: "#475569" }}>
-          Ruthenium is built to run inside <strong>Electron</strong> so it can open folders on your
-          machine and call the local API. From the repo root, run{" "}
+          Ruthenium runs inside <strong>Electron</strong>: privileged work (folder picker, project
+          graph) goes over a small <strong>IPC allowlist</strong> to the main process—there is no
+          local HTTP API. From the repo root, run{" "}
           <code style={{ background: "#e2e8f0", padding: "0.1rem 0.35rem", borderRadius: 4 }}>
             npm run dev
           </code>{" "}
@@ -54,7 +77,7 @@ export function ProjectScanPanel() {
           <code style={{ background: "#e2e8f0", padding: "0.1rem 0.35rem", borderRadius: 4 }}>
             npm run dev:stack
           </code>{" "}
-          for server + Vite only).
+          for Vite only in a browser).
         </p>
 
       </section>
@@ -66,8 +89,8 @@ export function ProjectScanPanel() {
       <h2 style={{ marginTop: 0 }}>Project graph</h2>
       <p style={{ color: "#475569", fontSize: "0.95rem" }}>
         Uses TypeScript&apos;s program and module resolution for the folder you pick (same family of
-        rules as <code>tsc</code>). Scanning stays on this device; there is no remote project upload
-        yet.
+        rules as <code>tsc</code>). The graph is built in the <strong>main process</strong> over IPC;
+        nothing is uploaded.
       </p>
       <div
         style={{

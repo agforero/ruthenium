@@ -1,11 +1,9 @@
 import { healthResponseSchema, type HealthResponse } from "@ruthenium/shared";
-import { apiUrl } from "@/lib/api-client";
 
 export async function getHealth(): Promise<HealthResponse> {
-  const res = await fetch(apiUrl("/api/health"));
-  if (!res.ok) {
-    throw new Error(`Health check failed: ${res.status}`);
+  if (typeof window.ruthenium?.ping !== "function") {
+    throw new Error("Run inside Electron (npm run dev) for the local shell.");
   }
-  const json: unknown = await res.json();
+  const json: unknown = await window.ruthenium.ping();
   return healthResponseSchema.parse(json);
 }

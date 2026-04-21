@@ -1,21 +1,22 @@
 # Ruthenium
 
-Desktop-oriented app: **Electron** + **React (Vite)** renderer, a small **Express** API on your machine, and shared types in **`packages/shared`**.
+Desktop app: **Electron** (main + preload) + **React (Vite)** renderer, shared contracts in **`packages/shared`**, and the TypeScript project scanner in **`packages/project-graph`**.
 
-Ruthenium is **local-first**: the API listens on **loopback only**, and project analysis reads directories you select—nothing is uploaded. A future flow where someone drops a **`.zip`** of a project would need a **hosted** service to unpack and scan in isolation (trust boundaries, malware, quotas)—that is explicitly out of scope until you design for it.
+## How it talks to itself
+
+Privileged work runs in the **Electron main process** behind a small **IPC allowlist** exposed from **`preload`** via `contextBridge` (`ping`, `scanProjectGraph`, `selectProjectDirectory`). The renderer does **not** open a local HTTP port for app logic—other programs cannot call a Ruthenium “API” on loopback.
+
+Ruthenium is **local-first**: you pick folders on disk; nothing is uploaded. A future **`.zip`** upload flow would need a **hosted** service with its own security model.
 
 ## Scripts
 
 - `npm install` — install all workspaces (run at repo root).
-- `npm run dev` — local API on `127.0.0.1:3001`, Vite on `5173`, then **Electron** (primary workflow).
-- `npm run dev:stack` — API + Vite only (no Electron), for UI tweaks without the shell.
-- `npm run build` — build server and web (packaged Electron flow can be added later).
+- `npm run dev` — Vite on **5173**, builds Electron main/preload, then opens **Electron** (primary workflow).
+- `npm run dev:stack` — Vite only (browser); graph and ping need Electron and will show a notice.
+- `npm run dev:electron` — same as `npm run dev`.
+- `npm run build` — `esbuild` bundles for Electron, then Vite production build for the renderer.
 - `npm run typecheck` — TypeScript in packages that define `typecheck`.
-
-## Project graph API
-
-`POST /api/project-graph` with JSON body `{ "rootPath": "<absolute directory>" }` returns a `ProjectGraph` (see `@ruthenium/shared`). The scanner loads the nearest `tsconfig.json` / `jsconfig.json` (from that directory upward) and uses TypeScript’s resolver. This repo includes a root `tsconfig.json` so scanning the monorepo root works; single-package projects typically rely on their own config at the package root.
 
 ## Layout (Bulletproof-style starter)
 
-React code uses feature folders under `apps/web/src/features`, with `src/lib` for cross-cutting helpers and `src/app` for composition.
+React code uses feature folders under `apps/web/src/features`, with `src/app` for composition.

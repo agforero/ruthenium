@@ -22,5 +22,5 @@ export function HealthStatus() {
     };
   }, []);
 
-  return <p>API: {label}</p>;
+  return <p>Main process: {label}</p>;
 }

@@ -6,8 +6,9 @@ export function App() {
     <main style={{ padding: "1.5rem", maxWidth: 960 }}>
       <h1 style={{ marginTop: 0 }}>Ruthenium</h1>
       <p>
-        Local desktop app: the renderer talks to a small API on this machine only. Project scanning
-        reads folders you choose on disk—nothing is uploaded.
+        Local desktop app: the renderer uses a small <strong>preload IPC allowlist</strong> into
+        the main process (ping, folder picker, project graph). No separate HTTP server; nothing is
+        uploaded.
       </p>
       <HealthStatus />
       <ProjectScanPanel />
