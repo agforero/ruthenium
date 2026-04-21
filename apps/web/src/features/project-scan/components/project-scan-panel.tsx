@@ -1,5 +1,5 @@
 import { useCallback, useState } from "react";
-import type { ProjectGraph } from "@ruthenium/shared";
+import { useMutation } from "@tanstack/react-query";
 import { postProjectGraph } from "../api/post-project-graph";
 
 function isElectronShell(): boolean {
@@ -12,9 +12,11 @@ function isElectronShell(): boolean {
 
 export function ProjectScanPanel() {
   const [rootPath, setRootPath] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [graph, setGraph] = useState<ProjectGraph | null>(null);
   const [clientError, setClientError] = useState<string | null>(null);
+  const scanMutation = useMutation({
+    mutationFn: postProjectGraph,
+  });
+  const { mutateAsync } = scanMutation;
 
   const runScan = useCallback(async (pathToScan: string) => {
     const trimmed = pathToScan.trim();
@@ -22,18 +24,13 @@ export function ProjectScanPanel() {
       setClientError("Choose a project folder first.");
       return;
     }
-    setLoading(true);
     setClientError(null);
-    setGraph(null);
     try {
-      const data = await postProjectGraph(trimmed);
-      setGraph(data);
-    } catch (e) {
-      setClientError(e instanceof Error ? e.message : "Scan failed");
-    } finally {
-      setLoading(false);
+      await mutateAsync(trimmed);
+    } catch {
+      // Error is handled by scanMutation.error in render.
     }
-  }, []);
+  }, [mutateAsync]);
 
   const chooseAndScan = useCallback(async () => {
     const picked = await window.ruthenium?.selectProjectDirectory?.();
@@ -116,10 +113,10 @@ export function ProjectScanPanel() {
       >
         <button
           type="button"
-          disabled={loading}
+          disabled={scanMutation.isPending}
           onClick={() => void chooseAndScan()}
         >
-          {loading ? "Scanning…" : "Choose project folder…"}
+          {scanMutation.isPending ? "Scanning…" : "Choose project folder…"}
         </button>
         {rootPath ? (
           <span
@@ -135,31 +132,36 @@ export function ProjectScanPanel() {
         {rootPath ? (
           <button
             type="button"
-            disabled={loading}
+            disabled={scanMutation.isPending}
             onClick={() => void runScan(rootPath)}
           >
             Rescan
           </button>
         ) : null}
       </div>
-      {clientError ? (
-        <p style={{ color: "#b91c1c", marginTop: "0.75rem" }}>{clientError}</p>
+      {clientError || scanMutation.error ? (
+        <p style={{ color: "#b91c1c", marginTop: "0.75rem" }}>
+          {clientError ??
+            (scanMutation.error instanceof Error
+              ? scanMutation.error.message
+              : "Scan failed")}
+        </p>
       ) : null}
-      {graph ? (
+      {scanMutation.data ? (
         <div style={{ marginTop: "1rem" }}>
           <p>
-            <strong>{graph.nodes.length}</strong> files ·{" "}
-            <strong>{graph.edges.length}</strong> internal edges
-            {graph.tsconfigPath ? (
+            <strong>{scanMutation.data.nodes.length}</strong> files ·{" "}
+            <strong>{scanMutation.data.edges.length}</strong> internal edges
+            {scanMutation.data.tsconfigPath ? (
               <>
                 {" "}
-                · tsconfig <code>{graph.tsconfigPath}</code>
+                · tsconfig <code>{scanMutation.data.tsconfigPath}</code>
               </>
             ) : null}
           </p>
-          {graph.errors.length > 0 ? (
+          {scanMutation.data.errors.length > 0 ? (
             <ul>
-              {graph.errors.map((e, i) => (
+              {scanMutation.data.errors.map((e, i) => (
                 <li key={i}>{e.message}</li>
               ))}
             </ul>
@@ -177,7 +179,7 @@ export function ProjectScanPanel() {
                 fontSize: "0.8rem",
               }}
             >
-              {JSON.stringify(graph, null, 2)}
+              {JSON.stringify(scanMutation.data, null, 2)}
             </pre>
           </details>
         </div>

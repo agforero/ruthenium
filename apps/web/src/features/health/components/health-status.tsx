@@ -1,26 +1,31 @@
-import { useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { getHealth } from "../api/get-health";
 
 export function HealthStatus() {
-  const [label, setLabel] = useState("Loading…");
+  const healthQuery = useQuery({
+    queryKey: ["health"],
+    queryFn: getHealth,
+    refetchInterval: 30_000,
+  });
 
-  useEffect(() => {
-    const state = { cancelled: false };
-    getHealth()
-      .then((h) => {
-        if (!state.cancelled) {
-          setLabel(`${h.service} @ ${h.time}`);
-        }
-      })
-      .catch((err: unknown) => {
-        if (!state.cancelled) {
-          setLabel(err instanceof Error ? err.message : "Request failed");
-        }
-      });
-    return () => {
-      state.cancelled = true;
-    };
-  }, []);
+  if (healthQuery.isPending) {
+    return <p>Main process: checking IPC…</p>;
+  }
 
-  return <p>Main process: {label}</p>;
+  if (healthQuery.error) {
+    return (
+      <p>
+        Main process:{" "}
+        {healthQuery.error instanceof Error
+          ? healthQuery.error.message
+          : "Request failed"}
+      </p>
+    );
+  }
+
+  return (
+    <p>
+      Main process: {healthQuery.data.service} @ {healthQuery.data.time}
+    </p>
+  );
 }
