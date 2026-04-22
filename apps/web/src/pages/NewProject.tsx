@@ -16,6 +16,9 @@ export default function NewProjectPage() {
           Start configuring your project settings in this view.
         </p>
       </div>
+      <div className="rounded-xl border border-border bg-card p-5 shadow-panel">
+        {/* TODO: project scan panel */}
+      </div>
       <div>
         <Link to="/">
           <Button variant="outline">Back home</Button>
