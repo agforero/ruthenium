@@ -36,7 +36,7 @@ const iconSrc = path.join(
   "..",
   "packages",
   "brand-assets",
-  "logo-square.png",
+  "logo-square-black.png",
 );
 const iconDest = path.join(dist, "assets", "app-icon.png");
 fs.mkdirSync(path.dirname(iconDest), { recursive: true });

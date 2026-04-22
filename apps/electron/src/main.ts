@@ -1,71 +1,13 @@
-import { buildProjectGraph } from "@ruthenium/project-graph";
-import {
-  healthResponseSchema,
-  projectGraphRequestSchema,
-  projectGraphSchema,
-} from "@ruthenium/shared";
-import { app, BrowserWindow, dialog, ipcMain } from "electron";
+import { app, BrowserWindow, ipcMain } from "electron";
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { registerRoutes } from "./routes/index.js";
 
 const rootDir = path.dirname(fileURLToPath(import.meta.url));
 const preloadPath = path.join(rootDir, "preload.cjs");
 const windowIconPath = path.join(rootDir, "assets", "app-icon.png");
 const windowIcon = fs.existsSync(windowIconPath) ? windowIconPath : undefined;
-
-function registerIpc(): void {
-  ipcMain.handle("ruthenium:ping", () => {
-    return healthResponseSchema.parse({
-      ok: true as const,
-      service: "ruthenium-main",
-      time: new Date().toISOString(),
-    });
-  });
-
-  ipcMain.handle("ruthenium:scanProject", (_event, payload: unknown) => {
-    const parsedReq = projectGraphRequestSchema.safeParse(payload);
-    if (!parsedReq.success) {
-      return projectGraphSchema.parse({
-        rootPath: "",
-        tsconfigPath: null,
-        nodes: [],
-        edges: [],
-        errors: [{ message: parsedReq.error.message }],
-      });
-    }
-    try {
-      return buildProjectGraph(parsedReq.data.rootPath);
-    } catch (err) {
-      return projectGraphSchema.parse({
-        rootPath: parsedReq.data.rootPath,
-        tsconfigPath: null,
-        nodes: [],
-        edges: [],
-        errors: [
-          {
-            message:
-              err instanceof Error
-                ? err.message
-                : "Failed to build project graph",
-          },
-        ],
-      });
-    }
-  });
-
-  ipcMain.handle("ruthenium:selectProjectDirectory", async () => {
-    const win =
-      BrowserWindow.getFocusedWindow() ?? BrowserWindow.getAllWindows()[0];
-    const result = await dialog.showOpenDialog(win ?? undefined, {
-      properties: ["openDirectory"],
-    });
-    if (result.canceled || result.filePaths.length === 0) {
-      return null;
-    }
-    return result.filePaths[0];
-  });
-}
 
 function createWindow(): void {
   const win = new BrowserWindow({
@@ -85,7 +27,7 @@ function createWindow(): void {
   }
 }
 
-registerIpc();
+registerRoutes(ipcMain);
 
 app.whenReady().then(() => {
   createWindow();

@@ -1,6 +1,6 @@
-import { useCallback, useState } from "react";
 import { useMutation } from "@tanstack/react-query";
-import { postProjectGraph } from "../api/post-project-graph";
+import { useCallback, useState } from "react";
+import { postProjectGraph } from "./api/post-project-graph";
 
 function isElectronShell(): boolean {
   return (
@@ -18,19 +18,22 @@ export function ProjectScanPanel() {
   });
   const { mutateAsync } = scanMutation;
 
-  const runScan = useCallback(async (pathToScan: string) => {
-    const trimmed = pathToScan.trim();
-    if (!trimmed) {
-      setClientError("Choose a project folder first.");
-      return;
-    }
-    setClientError(null);
-    try {
-      await mutateAsync(trimmed);
-    } catch {
-      // Error is handled by scanMutation.error in render.
-    }
-  }, [mutateAsync]);
+  const runScan = useCallback(
+    async (pathToScan: string) => {
+      const trimmed = pathToScan.trim();
+      if (!trimmed) {
+        setClientError("Choose a project folder first.");
+        return;
+      }
+      setClientError(null);
+      try {
+        await mutateAsync(trimmed);
+      } catch {
+        // Error is handled by scanMutation.error in render.
+      }
+    },
+    [mutateAsync],
+  );
 
   const chooseAndScan = useCallback(async () => {
     const picked = await window.ruthenium?.selectProjectDirectory?.();
